@@ -1,6 +1,10 @@
 import 'package:dart_openai/dart_openai.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
+import 'dart:io';
 
 class Conversation {
   String name;
@@ -82,17 +86,25 @@ class ConversationRepository {
 
   Future<Database> _getDb() async {
     if (_database == null) {
-      final String path = join(await getDatabasesPath(), 'chatgpt.db');
-      _database = await openDatabase(path, version: 1,
-          onCreate: (Database db, int version) async {
-        await db.execute('''
-          CREATE TABLE $_tableConversationName (
+      String path = "";
+      if (Platform.isWindows) {
+        Directory appDocDir = await getApplicationDocumentsDirectory();
+        String appDocPath = appDocDir.path;
+        path = join(appDocPath, 'chatgpt.db');
+
+        // Init ffi loader if needed.
+        sqfliteFfiInit();
+        var databaseFactory = databaseFactoryFfi;
+
+        _database = await databaseFactory.openDatabase(path);
+        await _database?.execute('''
+          CREATE TABLE IF NOT EXISTS $_tableConversationName (
             $_columnUuid TEXT PRIMARY KEY,
             $_columnName TEXT
           )
         ''');
-        await db.execute('''
-          CREATE TABLE $_tableMessageName (
+        await _database?.execute('''
+          CREATE TABLE IF NOT EXISTS $_tableMessageName (
             $_columnId INTEGER PRIMARY KEY AUTOINCREMENT,
             $_columnUuid TEXT,
             $_columnRole INTEGER,
@@ -100,7 +112,29 @@ class ConversationRepository {
             FOREIGN KEY ($_columnUuid) REFERENCES conversations($_columnUuid)
           )
         ''');
-      });
+
+      } else {
+        path = join(await getDatabasesPath(), 'chatgpt.db');
+
+        _database = await openDatabase(path, version: 1,
+            onCreate: (Database db, int version) async {
+          await db.execute('''
+            CREATE TABLE $_tableConversationName (
+              $_columnUuid TEXT PRIMARY KEY,
+              $_columnName TEXT
+            )
+          ''');
+          await db.execute('''
+            CREATE TABLE $_tableMessageName (
+              $_columnId INTEGER PRIMARY KEY AUTOINCREMENT,
+              $_columnUuid TEXT,
+              $_columnRole INTEGER,
+              $_columnText TEXT,
+              FOREIGN KEY ($_columnUuid) REFERENCES conversations($_columnUuid)
+            )
+          ''');
+        });
+      }
     }
     return _database!;
   }

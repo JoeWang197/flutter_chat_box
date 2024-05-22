@@ -14,7 +14,7 @@ Future<String> fetchAndParse(String query) async {
     String finalResult = "";
 
     final url =
-        'https://www.bing.com/search?form=QBRE&q=${Uri.encodeComponent(query)}&cc=CN&wppersonalization=off';
+        'https://www.bing.com/search?q=${Uri.encodeComponent(query)}';
     print(url);
     final response = await http.get(Uri.parse(url));
     final html = response.body;

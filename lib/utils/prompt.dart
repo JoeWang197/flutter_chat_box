@@ -3,7 +3,6 @@ import 'package:flutter_chatgpt/controller/prompt.dart';
 import 'package:http/http.dart' as http;
 
 const RAW_FILE_URL = "https://raw.githubusercontent.com";
-const MIRRORF_FILE_URL = "https://raw.fgit.ml/";
 
 Future<List<Prompt>> getPrompts() async {
   final List<Prompt> prompts = [];

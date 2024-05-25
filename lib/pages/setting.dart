@@ -221,7 +221,6 @@ class SettingPage extends GetResponsiveView<SettingsController> {
                       filled: true,
                     ),
                     items: <String>[
-                      'https://api.openai-proxy.com',
                       'https://api.openai.com',
                     ].map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
@@ -265,8 +264,9 @@ class SettingPage extends GetResponsiveView<SettingsController> {
                     items: <String>[
                       'gpt-3.5-turbo',
                       'gpt-3.5-turbo-16k',
+                      'gpt-4o',
                       'gpt-4',
-                      'gpt-4-0314',
+                      'gpt-4-turbo',
                     ].map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,

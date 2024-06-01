@@ -21,8 +21,9 @@ class ChatGpt extends LLM {
     //将messages反转
     messages = messages.reversed.toList();
     // 将messages里面的每条消息的内容取出来拼接在一起
-    String content = "";
+    String content = ""; //only for content length checking
     String currentModel = SettingsController.to.gptModel.value;
+    
     int maxTokenLength = 1800;
     switch (currentModel) {
       case "gpt-3.5-turbo":
@@ -35,10 +36,12 @@ class ChatGpt extends LLM {
         maxTokenLength = 1800;
         break;
     }
+
     bool useWebSearch = SettingsController.to.useWebSearch.value;
     if (useWebSearch) {
       messages.first.text = await fetchAndParse(messages.first.text);
     }
+
     for (Message message in messages) {
       content = content + message.text;
       if (content.length < maxTokenLength || openAIMessages.isEmpty) {
@@ -52,6 +55,7 @@ class ChatGpt extends LLM {
         );
       }
     }
+
     var message = Message(
         conversationId: messages.first.conversationId,
         text: "",

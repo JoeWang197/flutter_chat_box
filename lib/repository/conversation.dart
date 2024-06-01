@@ -87,6 +87,7 @@ class ConversationRepository {
   Future<Database> _getDb() async {
     if (_database == null) {
       String path = "";
+      
       if (Platform.isWindows) {
         Directory appDocDir = await getApplicationDocumentsDirectory();
         String appDocPath = appDocDir.path;
